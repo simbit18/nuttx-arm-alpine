@@ -1,0 +1,183 @@
+## Build Mainline NuttX every day for Alpine Action Nucleo-F411re:nsh
+
+name: Daily Build of NuttX for Alpine Nucleo-F411re:nsh
+
+permissions:
+  ## Allow publishing of GitHub Release
+  contents: write
+
+on:
+  ## Run every day at 0:30 UTC
+  schedule:
+    - cron: '30 0 * * *'
+
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/Alpine_Nucleo_F411re_nsh.yml'
+
+jobs:
+  # Label of the container job
+  nucleo-F411re-nsh-job:
+    # Containers must run in Linux based operating systems
+    runs-on: ubuntu-latest
+    # Docker Hub image that `container-job` executes in
+    container: alpine:latest
+
+    steps:
+
+    - name: Install Build Tools
+      run:  |
+        apk --no-cache add \
+        bash \
+        coreutils \
+        findutils \
+        gawk \
+        git
+
+    - name: Install and Upgrade Base Packages
+      run:  |
+        apk --no-cache --update add \
+        bison \
+        flex \
+        gettext \
+        texinfo \
+        gperf \
+        automake \
+        libtool \
+        binutils-dev \
+        picocom \
+        u-boot-tools \
+        util-linux \
+        patch \
+        autoconf \
+        build-base \
+        bash \
+        bash-completion \
+        shadow \
+        git \
+        curl \
+        rsync \
+        nano \
+        tar \
+        gzip \
+        bzip2 \
+        xz \
+        zip
+        
+    - name: Install and Upgrade ARM Compiler Packages
+      run :  |
+        apk --no-cache --update add \
+        gcc-arm-none-eabi \
+        newlib-arm-none-eabi \
+        g++-arm-none-eabi
+
+    - name: Install and Upgrade Packages for Nuttx 
+      run:  |
+        apk --no-cache --update add \
+        bsd-compat-headers \
+        zlib-dev \
+        ncurses-dev
+
+    - name: Install Development Tools Packages
+      run:  | 
+        apk --no-cache --update add \
+        cmake \
+        xxd \
+        python3 \
+        py3-pip
+
+        ## WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager.
+        ## It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+        ##  ignore warning message
+        ##  Container -> ENV PIP_ROOT_USER_ACTION=ignore
+        ##  Action    -> pip install --root-user-action=ignore
+        ##  WARNING: The directory '/github/home/.cache/pip' or its parent directory is not owned or is not writable by the current user.
+        ##  The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+        ##  Container -> ENV PIP_NO_CACHE_DIR=false
+        ##  Action    -> pip3 install --no-cache-dir
+        
+    - name: Install Python 3 option
+      run:  |
+        pip3 install --root-user-action=ignore --no-cache-dir \
+        pyelftools \
+        cxxfilt
+
+    - name: Install kconfig-frontends
+      run:  |
+        cd /tmp \
+        && git clone https://bitbucket.org/nuttx/tools.git \
+        && cd tools \
+        && cd kconfig-frontends \
+        && ./configure --enable-mconf --disable-nconf --disable-gconf --disable-qconf \
+        && ln -s /usr/bin/aclocal /usr/local/bin/aclocal-1.15 \
+        && ln -s /usr/bin/automake /usr/local/bin/automake-1.15 \
+        && make \
+        && make install \
+        && cd /
+
+    - name: Install genromfs
+      run:  |
+        cd /tmp \
+        && git clone https://github.com/chexum/genromfs.git \
+        && cd genromfs \
+        && make \
+        && make install \
+        && cd /
+
+    - name: Checkout Source Files
+      run:  |
+        mkdir nuttxspace
+        cd nuttxspace
+        git clone https://github.com/apache/incubator-nuttx nuttx
+        git clone https://github.com/apache/incubator-nuttx-apps apps
+        ## git clone --single-branch --branch simbit18-alpine https://github.com/simbit18/nuttx.git nuttx
+        ## git clone --single-branch --branch simbit18-alpine https://github.com/simbit18/nuttx-apps.git apps
+
+    - name: Build
+      run: |
+        ## Move to nuttx
+        cd nuttxspace/nuttx
+        ls
+
+        ## Show the GCC version
+        arm-none-eabi-gcc --version
+        arm-none-eabi-c++ --version
+
+        ## Configure the build
+        tools/configure.sh -l nucleo-f4x1re:f411-nsh
+        	
+        ## Preserve the build config
+        cp .config nuttx.config
+
+        ## Run the build
+        make
+
+        ## Show the size
+        arm-none-eabi-size nuttx
+        
+        ## Dump the disassembly to nuttx.S
+        arm-none-eabi-objdump \
+          -t -S --demangle --line-numbers --wide \
+          nuttx \
+          >nuttx.S \
+          2>&1
+
+    - name: Get Current Date
+      id: date
+      run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+    - name: Publish the GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: alpine-nucleo-F411re-nsh-${{ steps.date.outputs.date }}
+        draft: false
+        prerelease: false
+        generate_release_notes: false
+        files: |
+          nuttxspace/nuttx/nuttx
+          nuttxspace/nuttx/nuttx.bin
+          nuttxspace/nuttx/nuttx.S
+          nuttxspace/nuttx/nuttx.hex
+          nuttxspace/nuttx/nuttx.config
+          nuttxspace/nuttx/nuttx.manifest
