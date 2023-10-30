@@ -1,6 +1,6 @@
 # nuttx-arm-alpine
 Build [Apache NuttX RTOS](https://github.com/apache/nuttx) for arm on Alpine Linux
-# Testing GitHub Actions Workflow
+# Testing GitHub Actions Workflows
 
 | Build Status | |
 | ------------ | - |
