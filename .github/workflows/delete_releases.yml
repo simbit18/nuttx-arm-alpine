@@ -7,9 +7,9 @@ permissions:
    contents: write
 
 on:
-  ## Run every day at 0:30 UTC
+  ## Run every 1 and 15 day of the month at 0:30 UTC
   schedule:
-    - cron: '30 0 * * *'
+    - cron: '30 0 1,15 * *'
 
   workflow_dispatch:
   push:
