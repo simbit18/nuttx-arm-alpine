@@ -2,7 +2,7 @@
 
 name: Delete older releases
 
- permissions:
+permissions:
   ## Allow publishing of GitHub Release
    contents: write
 
