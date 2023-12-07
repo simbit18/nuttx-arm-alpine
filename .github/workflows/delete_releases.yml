@@ -2,9 +2,9 @@
 
 name: Delete older releases
 
-## permissions:
+ permissions:
   ## Allow publishing of GitHub Release
-  ## contents: write
+   contents: write
 
 on:
   ## Run every day at 0:30 UTC
