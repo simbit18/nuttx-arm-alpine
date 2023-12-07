@@ -1,0 +1,31 @@
+## This action delete older releases
+
+name: Delete older releases
+
+## permissions:
+  ## Allow publishing of GitHub Release
+  ## contents: write
+
+on:
+  ## Run every day at 0:30 UTC
+  schedule:
+    - cron: '30 0 * * *'
+
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/delete_releases.yml'
+jobs:
+ # Label of the job
+  delete-releases-job:
+     # Run in Linux based operating systems
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Delete Older Releases
+        uses: dev-drprasad/delete-older-releases@v0.3.2
+        with:
+          keep_latest: 30
+          delete_tags: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
