@@ -99,7 +99,7 @@ jobs:
         
     - name: Install Python 3 option
       run:  |
-        pip3 install --root-user-action=ignore --no-cache-dir \
+        pip3 install --break-system-packages --user --root-user-action=ignore --no-cache-dir \
         pyelftools \
         cxxfilt
 
