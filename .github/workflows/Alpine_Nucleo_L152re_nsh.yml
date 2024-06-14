@@ -129,8 +129,8 @@ jobs:
       run:  |
         mkdir nuttxspace
         cd nuttxspace
-        git clone https://github.com/apache/incubator-nuttx nuttx
-        git clone https://github.com/apache/incubator-nuttx-apps apps
+        git clone --depth 1 https://github.com/apache/incubator-nuttx nuttx
+        git clone --depth 1 https://github.com/apache/incubator-nuttx-apps apps
         ## git clone --single-branch --branch simbit18-alpine https://github.com/simbit18/nuttx.git nuttx
         ## git clone --single-branch --branch simbit18-alpine https://github.com/simbit18/nuttx-apps.git apps
 
