@@ -77,7 +77,12 @@ jobs:
         apk --no-cache --update add \
         bsd-compat-headers \
         zlib-dev \
-        ncurses-dev
+        ncurses-dev \
+        linux-headers \
+        libx11-dev \
+        libxft-dev \
+        libxext-dev \
+        libusb-dev
 
     - name: Install Development Tools Packages
       run:  | 
