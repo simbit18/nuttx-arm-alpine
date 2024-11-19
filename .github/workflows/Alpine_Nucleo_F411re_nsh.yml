@@ -150,7 +150,7 @@ jobs:
         arm-none-eabi-c++ --version
 
         ## Configure the build
-        tools/configure.sh -l nucleo-f4x1re:f411-nsh
+        tools/configure.sh -l nucleo-f411re:nsh
         	
         ## Preserve the build config
         cp .config nuttx.config
