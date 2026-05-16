@@ -111,7 +111,7 @@ jobs:
     - name: Install kconfig-frontends
       run:  |
         cd /tmp \
-        && git clone https://bitbucket.org/nuttx/tools.git \
+        && git clone https://github.com/patacongo/tools.git \
         && cd tools \
         && cd kconfig-frontends \
         && ./configure --enable-mconf --disable-nconf --disable-gconf --disable-qconf \
