@@ -173,7 +173,7 @@ jobs:
       run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
 
     - name: Publish the GitHub Release
-      uses: softprops/action-gh-release@v2
+      uses: softprops/action-gh-release@v3
       with:
         tag_name: alpine-nucleo-L152re-nsh-${{ steps.date.outputs.date }}
         draft: false
